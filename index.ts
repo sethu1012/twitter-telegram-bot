@@ -1,6 +1,7 @@
 import {TwitterClient} from 'twitter-api-client';
 import Slimbot from 'slimbot';
 import {config} from 'dotenv';
+import {Cr_Handles} from "./generated/graphql";
 
 const { getAllHandles, updateLastTweetId } = require('./utils');
 
@@ -21,16 +22,15 @@ const twitterClient = new TwitterClient({
 const { status, data } = await getAllHandles();
 
 if (status) {
-    const handles = (data["cr_handles"] as []);
-    handles.forEach(async (handle) => {
+    data.forEach(async (handle: Cr_Handles) => {
         let params = {
-            screen_name: handle["handle_name"],
+            screen_name: handle.handle_name,
             include_rts: true,
             exclude_replies: true,
         };
         console.log(handle);
-        if (handle["last_tweet_id"]) {
-            params["since_id"] = handle["last_tweet_id"];
+        if (handle.last_tweet_id) {
+            params["since_id"] = handle.last_tweet_id;
         }
         console.log(params);
         const tweets = await twitterClient.tweets.statusesUserTimeline(params);
@@ -51,7 +51,7 @@ if (status) {
                 }
                 console.log(url);
                 await slimbot.sendMessage(process.env.TELEGRAM_CHANNEL_ID, url);
-                await updateLastTweetId(+handle["id"], url.substr(url.lastIndexOf("/") + 1));
+                await updateLastTweetId(+handle.id, url.substr(url.lastIndexOf("/") + 1));
             } catch (e) {
                 console.log(e, tweet);
             }

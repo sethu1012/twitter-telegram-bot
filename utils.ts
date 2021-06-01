@@ -1,5 +1,6 @@
 import 'isomorphic-unfetch';
 import { gql, createClient } from '@urql/core';
+import {Cr_Handles} from "./generated/graphql";
 
 const client = createClient({
     url: 'https://striking-buzzard-60.hasura.app/v1/graphql',
@@ -25,7 +26,7 @@ const getAllHandles = async () => {
             }
         `;
 
-        const { data } = await client.query(query).toPromise();
+        const { data } = await client.query<Cr_Handles[]>(query).toPromise();
         return { status: true, data };
     } catch (e) {
         return { status: false, error: e };
